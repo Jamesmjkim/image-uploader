@@ -11,7 +11,7 @@ class MainContainer extends React.Component {
     componentDidMount() {
 
         fetch('http://localhost:3000/static/sampleImage.png',{
-            mode: 'cors'
+            // mode: 'cors'
         }).then(image => {
             this.setState({image: image.url});
         })
@@ -21,19 +21,21 @@ class MainContainer extends React.Component {
             'image/jpeg' : true,
             'image/png' : true
         }
-        const file = e.currentTarget.files[0];
-        // console.log(file.type)
+        const file = e.target.files[0];
+        const data = new FormData();
+        data.append('file', file);
         if (!file) return;
         else if(fileTypes[file.type]) {
-            this.setState({image:URL.createObjectURL(file)});
-            fetch('http://localhost:3000/uploadImage',{
+            fetch('http://localhost:3000/upload',{
                 method: 'POST',
                 mode: 'cors',
-                headers: {
-                    'Content-Type': file.type
-                },
-                body: file
-            }).then(res => console.log(res))
+                body: data
+            })
+            .then(res => res.json())
+            .then(res => {
+                console.log(res.filePath);
+                this.setState({image:res.filePath})
+            })
         }
         
 
@@ -62,11 +64,9 @@ class MainContainer extends React.Component {
                                         <img src={this.state.image} className="rounded" alt="Sample" style={{
                                             maxWidth: '25rem'
                                         }} />
-                                        {/* <p className='m-5 mb-4'>Drag & Drop your image here</p> */}
                                     </div>
                                 </div>
         
-                                {/* <button type="button" className="btn btn-primary m-3">Choose a file</button> */}
                                 <div className="input-group mb-3">
                                     <input type="file" className="form-control" id="inputGroupFile02" onChange={this.onFileLoad}/>
                                     <label className="input-group-text" htmlFor="inputGroupFile02">Upload</label>
