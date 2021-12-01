@@ -4,7 +4,9 @@ import React from "react";
 class MainContainer extends React.Component {
     constructor(props){
         super(props);
-        this.state={};
+        this.state={
+            fileUploaded:false
+        };
         
         this.onFileLoad = this.onFileLoad.bind(this);
     }
@@ -24,7 +26,9 @@ class MainContainer extends React.Component {
         const file = e.target.files[0];
         const data = new FormData();
         data.append('file', file);
-        if (!file) return;
+        if (!file) {
+            this.setState({image:'Error'})
+        }
         else if(fileTypes[file.type]) {
             fetch('http://localhost:3000/upload',{
                 method: 'POST',
@@ -34,7 +38,7 @@ class MainContainer extends React.Component {
             .then(res => res.json())
             .then(res => {
                 console.log(res.filePath);
-                this.setState({image:res.filePath})
+                this.setState({image:res.filePath,fileUploaded:true})
             })
         }
         
@@ -43,6 +47,7 @@ class MainContainer extends React.Component {
     }
     
     render() {
+        const { image, fileUploaded } = this.state;
             return (
                 <div className="position-absolute top-50 start-50 translate-middle">
                     <div className='container text-center'>
@@ -61,9 +66,16 @@ class MainContainer extends React.Component {
                                     justifyContent: 'center'
                                 }}>
                                     <div className="text-center">
-                                        <img src={this.state.image} className="rounded" alt="Sample" style={{
-                                            maxWidth: '25rem'
-                                        }} />
+                                        {image === 'Error' ? <p>Error with Uploading Image</p> : 
+                                        <div>
+                                            <img src={image} className="rounded" alt="Sample" style={{
+                                                maxWidth: '25rem'
+                                            }} />
+                                            {fileUploaded ? 
+                                            <p className='text-center m-2' style ={{color: 'blue'}}>Upload Successful!!</p> : null
+                                            }
+                                        </div>
+                                        }
                                     </div>
                                 </div>
         

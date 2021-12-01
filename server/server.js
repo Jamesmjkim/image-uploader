@@ -1,9 +1,9 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
 const fileUpload = require('express-fileupload');
+const File = require('./models/fileModel');
 
 const PORT = 3000;
 const app = express();
@@ -19,23 +19,36 @@ app.use(
 );
 
 app.post('/upload', (req, res) => {
-  //   console.log(req.files);
-  //   console.log(req);
   if (req.files === null) {
     return res.status(400).json({ message: 'No file uploaded' });
   }
-  const file = req.files.file;
-  file.mv(`${__dirname}/../client/public/uploads/${file.name}`, (err) => {
-    if (err) {
-      console.error(err);
-      return res.status(500).send(err);
+  //   console.log(req.files);
+  const { file } = req.files;
+  File.findOne({ fileName: file.name }).then((data) => {
+    if (data === null) {
+      const filePath = `${__dirname}/../client/public/uploads/${file.name}`;
+      file.mv(filePath, (err) => {
+        if (err) {
+          console.error(err);
+          return res.status(500).send(err);
+        }
+        File.create({
+          fileName: file.name,
+          filePath: `uploads/${file.name}`,
+          dateUploaded: Date(),
+        });
+        res.status(200).json({
+          fileName: file.name,
+          filePath: `http://localhost:${PORT}/static/uploads/${file.name}`,
+        });
+      });
+    } else {
+      res.status(200).json({
+        fileName: data.fileName,
+        filePath: `http://localhost:${PORT}/static/${data.filePath}`,
+      });
     }
-    res.json({
-      fileName: file.name,
-      filePath: `http://localhost:${PORT}/static/uploads/${file.name}`,
-    });
   });
-  //   return res.sendStatus(200);
 });
 
 app.listen(PORT, console.log(`Listening on PORT: ${PORT}...`));
