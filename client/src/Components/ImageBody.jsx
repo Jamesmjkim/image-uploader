@@ -19,7 +19,11 @@ const ImageBody = ({ image, fileUploaded }) => {
             <p className='text-center m-2' style={{ color: 'blue' }}>
               Upload Successful!!
             </p>
-          ) : null}
+          ) : fileUploaded === null ? null : (
+            <p className='text-center m-2' style={{ color: 'red' }}>
+              Upload Error
+            </p>
+          )}
         </div>
       )}
     </div>

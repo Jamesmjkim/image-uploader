@@ -3,8 +3,18 @@ const fileController = require('./../controllers/fileController');
 
 const router = express.Router();
 
-router.post('/', fileController.uploadFile, (req, res) => {
+const { uploadFile, getFiles, deleteFile } = fileController;
+
+router.get('/', getFiles, (req, res) => {
+  return res.status(200).json(res.locals.fileInfo);
+});
+
+router.post('/', uploadFile, (req, res) => {
   return res.status(200).json(res.locals.fileData);
+});
+
+router.delete('/', deleteFile, (req, res) => {
+  return res.status(200).json(res.locals.success);
 });
 
 module.exports = router;

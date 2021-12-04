@@ -14,7 +14,7 @@ class MainContainer extends React.Component {
     fetch('http://localhost:3000/static/sampleImage.png', {
       mode: 'cors',
     }).then((image) => {
-      this.setState({ image: image.url });
+      this.setState({ image: image.url, fileUploaded: null });
     });
   }
   onFileLoad(e) {
@@ -35,8 +35,20 @@ class MainContainer extends React.Component {
       })
         .then((res) => res.json())
         .then((res) => {
-          console.log(res.filePath);
-          this.setState({ image: res.filePath, fileUploaded: true });
+          // console.log(res.filePath);
+          let fileUploaded = true;
+          if (!res.filePath) {
+            fileUploaded = false;
+            res.filePath =
+              'http://localhost:3000/static/error-image-generic.png';
+          }
+
+          this.setState({ image: res.filePath, fileUploaded: fileUploaded });
+        })
+        .catch((err) => {
+          if (err) {
+            console.log(err);
+          }
         });
     }
   }
@@ -44,22 +56,22 @@ class MainContainer extends React.Component {
   render() {
     const { image, fileUploaded } = this.state;
     return (
-      <div className='position-absolute top-50 start-50 translate-middle'>
-        <div className='container text-center'>
-          <div
-            className='card'
-            style={{
-              width: '35rem',
-              height: '37rem',
-            }}
-          >
-            <UploadBody
-              image={image}
-              fileUploaded={fileUploaded}
-              onFileLoad={this.onFileLoad}
-            />
-          </div>
+      <div className='m-5 mb-3'>
+        {/* <div className='container text-center'> */}
+        <div
+          className='card mx-auto'
+          style={{
+            width: '35rem',
+            height: '37rem',
+          }}
+        >
+          <UploadBody
+            image={image}
+            fileUploaded={fileUploaded}
+            onFileLoad={this.onFileLoad}
+          />
         </div>
+        {/* </div> */}
       </div>
     );
   }
